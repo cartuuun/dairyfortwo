@@ -15,7 +15,8 @@ export default function Photos() {
 
   useEffect(() => {
     loadPhotos();
-    subscribeToChanges();
+    const cleanup = subscribeToChanges();
+    return cleanup;
   }, []);
 
   async function loadPhotos() {
@@ -66,6 +67,7 @@ export default function Photos() {
       setPhotoUrl('');
       setCaption('');
       setShowAddForm(false);
+      await loadPhotos();
     } catch (error) {
       console.error('Error adding photo:', error);
     } finally {
@@ -80,6 +82,7 @@ export default function Photos() {
       const { error } = await supabase.from('photos').delete().eq('id', photoId);
 
       if (error) throw error;
+      await loadPhotos();
     } catch (error) {
       console.error('Error deleting photo:', error);
     }
@@ -92,7 +95,7 @@ export default function Photos() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <div className="glass-effect rounded-2xl shadow-xl p-6 mb-6 card-hover-lift">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <ImageIcon className="text-pink-500" size={28} />
@@ -101,7 +104,7 @@ export default function Photos() {
 
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-2 bg-gradient-to-r from-purple-400 to-pink-400 text-white px-4 py-2 rounded-xl font-medium hover:from-purple-500 hover:to-pink-500 transition"
+            className="flex items-center gap-2 bg-gradient-to-br from-pink-400 to-rose-400 text-white px-5 py-2.5 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all shadow-md"
           >
             <Plus size={20} />
             Add Photo
@@ -137,7 +140,7 @@ export default function Photos() {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 bg-gradient-to-r from-pink-400 to-rose-400 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition disabled:opacity-50"
+                className="flex-1 bg-gradient-to-br from-pink-400 to-rose-400 text-white py-3 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 shadow-md"
               >
                 {saving ? 'Adding...' : 'Add Photo'}
               </button>
@@ -167,7 +170,7 @@ export default function Photos() {
           {photos.map((photo) => (
             <div
               key={photo.id}
-              className="bg-white rounded-xl shadow-lg overflow-hidden animate-fade-in hover:shadow-xl transition cursor-pointer"
+              className="glass-effect rounded-2xl shadow-lg overflow-hidden animate-fade-in card-hover-lift cursor-pointer"
               onClick={() => setSelectedPhoto(photo)}
             >
               <div className="aspect-square overflow-hidden bg-gray-100">

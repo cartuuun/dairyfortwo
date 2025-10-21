@@ -17,10 +17,10 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-100 via-pink-50 to-purple-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Heart className="animate-bounce-slow text-pink-400 mx-auto mb-4" size={64} />
-          <p className="text-xl font-medium text-gray-600">Loading DiaryForTwo...</p>
+          <Heart className="animate-float text-rose-400 mx-auto mb-6" size={72} fill="currentColor" />
+          <p className="text-2xl font-medium gradient-text-romantic">Loading DiaryForTwo...</p>
         </div>
       </div>
     );

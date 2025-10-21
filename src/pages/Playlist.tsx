@@ -14,7 +14,8 @@ export default function Playlist() {
 
   useEffect(() => {
     loadPlaylist();
-    subscribeToChanges();
+    const cleanup = subscribeToChanges();
+    return cleanup;
   }, []);
 
   async function loadPlaylist() {
@@ -65,6 +66,7 @@ export default function Playlist() {
       setSongTitle('');
       setSongUrl('');
       setShowAddForm(false);
+      await loadPlaylist();
     } catch (error) {
       console.error('Error adding song:', error);
     } finally {
@@ -79,6 +81,7 @@ export default function Playlist() {
       const { error } = await supabase.from('playlist').delete().eq('id', songId);
 
       if (error) throw error;
+      await loadPlaylist();
     } catch (error) {
       console.error('Error deleting song:', error);
     }
@@ -91,7 +94,7 @@ export default function Playlist() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <div className="glass-effect rounded-2xl shadow-xl p-6 mb-6 card-hover-lift">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Music className="text-pink-500" size={28} />
@@ -100,7 +103,7 @@ export default function Playlist() {
 
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-2 bg-gradient-to-r from-purple-400 to-pink-400 text-white px-4 py-2 rounded-xl font-medium hover:from-purple-500 hover:to-pink-500 transition"
+            className="flex items-center gap-2 bg-gradient-to-br from-pink-400 to-rose-400 text-white px-5 py-2.5 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all shadow-md"
           >
             <Plus size={20} />
             Add Song
@@ -139,7 +142,7 @@ export default function Playlist() {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 bg-gradient-to-r from-pink-400 to-rose-400 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition disabled:opacity-50"
+                className="flex-1 bg-gradient-to-br from-pink-400 to-rose-400 text-white py-3 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 shadow-md"
               >
                 {saving ? 'Adding...' : 'Add to Playlist'}
               </button>
@@ -169,7 +172,7 @@ export default function Playlist() {
           {songs.map((song, index) => (
             <div
               key={song.id}
-              className="bg-white rounded-xl shadow-lg p-5 flex items-center gap-4 animate-fade-in hover:shadow-xl transition"
+              className="glass-effect rounded-2xl shadow-lg p-5 flex items-center gap-4 animate-fade-in card-hover-lift"
             >
               <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-lg">
                 {index + 1}

@@ -31,14 +31,14 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50">
-      <header className="bg-white border-b border-pink-100 sticky top-0 z-40">
+    <div className="min-h-screen">
+      <header className="glass-effect border-b border-pink-100 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-rose-400 to-pink-500 rounded-full flex items-center justify-center">
-              <Heart className="text-white" size={20} fill="currentColor" />
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-rose-400 via-pink-400 to-rose-500 rounded-full flex items-center justify-center shadow-lg animate-pulse-soft">
+              <Heart className="text-white" size={22} fill="currentColor" />
             </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-rose-500 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold gradient-text-romantic">
               DiaryForTwo
             </h1>
           </div>
@@ -65,7 +65,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
         </div>
       </header>
 
-      <nav className="bg-white border-b border-pink-100 sticky top-16 z-30">
+      <nav className="glass-effect border-b border-pink-100 sticky top-[73px] z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center gap-1 overflow-x-auto">
             {navItems.map((item) => {
@@ -75,10 +75,10 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
                 <button
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
-                  className={`flex items-center gap-2 px-4 py-3 border-b-2 transition whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-5 py-3 border-b-2 transition whitespace-nowrap rounded-t-lg ${
                     isActive
-                      ? 'border-pink-500 text-pink-600'
-                      : 'border-transparent text-gray-600 hover:text-pink-600'
+                      ? 'border-rose-500 text-rose-600 bg-gradient-to-t from-rose-50 to-transparent'
+                      : 'border-transparent text-gray-600 hover:text-rose-500 hover:bg-rose-50/30'
                   }`}
                 >
                   <Icon size={18} />

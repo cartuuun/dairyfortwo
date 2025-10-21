@@ -32,22 +32,30 @@ export default function Timeline() {
 
   useEffect(() => {
     loadPosts();
-    subscribeToNewPosts();
+    const cleanup = subscribeToNewPosts();
+    return cleanup;
   }, [filter, user, partnerProfile]);
 
   async function loadPosts() {
     try {
+      if (!user) return;
+
       let query = supabase
         .from('posts')
         .select('*, profiles(id, name)')
         .order('created_at', { ascending: false });
 
-      if (filter === 'mine' && user) {
+      if (filter === 'mine') {
         query = query.eq('user_id', user.id);
-      } else if (filter === 'theirs' && partnerProfile) {
+      } else if (filter === 'theirs') {
+        if (!partnerProfile) return;
         query = query.eq('user_id', partnerProfile.id);
-      } else if (user && partnerProfile) {
-        query = query.in('user_id', [user.id, partnerProfile.id]);
+      } else {
+        if (!partnerProfile) {
+          query = query.eq('user_id', user.id);
+        } else {
+          query = query.in('user_id', [user.id, partnerProfile.id]);
+        }
       }
 
       const { data, error } = await query;
@@ -83,7 +91,19 @@ export default function Timeline() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, () => {
         loadPosts();
       })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'posts' }, () => {
+        loadPosts();
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'posts' }, () => {
+        loadPosts();
+      })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reactions' }, () => {
+        loadPosts();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'reactions' }, () => {
+        loadPosts();
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'reactions' }, () => {
         loadPosts();
       })
       .subscribe();
@@ -115,6 +135,7 @@ export default function Timeline() {
       setImageUrl('');
       setSongLink('');
       setShowPostForm(false);
+      await loadPosts();
     } catch (error) {
       console.error('Error creating post:', error);
     }
@@ -137,6 +158,7 @@ export default function Timeline() {
       ]);
 
       if (error) throw error;
+      await loadPosts();
     } catch (error) {
       console.error('Error sending miss you:', error);
     }
@@ -167,7 +189,7 @@ export default function Timeline() {
         ]);
       }
 
-      loadPosts();
+      await loadPosts();
     } catch (error) {
       console.error('Error handling reaction:', error);
     }
@@ -187,18 +209,18 @@ export default function Timeline() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <div className="glass-effect rounded-2xl shadow-xl p-6 mb-6 card-hover-lift">
         <div className="flex items-center gap-4 mb-4">
           <button
             onClick={handleMissYou}
-            className="flex-1 bg-gradient-to-r from-rose-400 to-pink-500 text-white py-3 rounded-xl font-medium hover:from-rose-500 hover:to-pink-600 transition flex items-center justify-center gap-2"
+            className="flex-1 bg-gradient-to-br from-rose-400 via-pink-400 to-rose-500 text-white py-3 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-md"
           >
             <Heart size={20} fill="currentColor" />
             I Miss You
           </button>
           <button
             onClick={() => setShowPostForm(!showPostForm)}
-            className="flex-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white py-3 rounded-xl font-medium hover:from-purple-500 hover:to-pink-500 transition"
+            className="flex-1 bg-gradient-to-br from-pink-400 via-rose-400 to-pink-500 text-white py-3 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all shadow-md"
           >
             New Post
           </button>
@@ -255,7 +277,7 @@ export default function Timeline() {
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-pink-400 to-rose-400 text-white py-2 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-br from-pink-400 to-rose-400 text-white py-2 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-md"
             >
               <Send size={18} />
               Post
@@ -269,10 +291,10 @@ export default function Timeline() {
           <button
             key={f}
             onClick={() => setFilter(f as any)}
-            className={`px-4 py-2 rounded-xl font-medium transition ${
+            className={`px-5 py-2.5 rounded-xl font-medium transition-all shadow-sm ${
               filter === f
-                ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-white'
-                : 'bg-white text-gray-600 hover:bg-pink-50'
+                ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white shadow-md scale-105'
+                : 'glass-effect text-gray-700 hover:bg-rose-50 hover:scale-105'
             }`}
           >
             {f === 'all' ? 'All' : f === 'mine' ? 'Mine' : partnerProfile?.name || 'Theirs'}
@@ -292,7 +314,7 @@ export default function Timeline() {
       ) : (
         <div className="space-y-4">
           {posts.map((post) => (
-            <div key={post.id} className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
+            <div key={post.id} className="glass-effect rounded-2xl shadow-xl p-6 animate-fade-in card-hover-lift">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-rose-400 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold">
